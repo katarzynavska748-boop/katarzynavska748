@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>AI辅助办公：提高工作效率</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(145deg, #f0f4fa 0%, #d9e2ef 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 100vh;
+            background: white;
+            position:fixed;
+            top:0px;
+            left:0px;
+        }
+
+        iframe {
+            display: block;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .article {font-size:16px;line-height:24px;}
+        .artilce p {text-indent:2em;}
+    </style>
+</head>
+<body>
+    <div class="article">
+        <p>AI已经能写邮件、做表格、整理会议纪要，但用得好和用得糟，差别不在工具，而在方法。合理使用AI辅助办公，核心是分清哪些事该交给它，哪些事必须自己把关。</p>
+
+<p>第一，把AI当"初稿生成器"，不当"最终决策者"。 写周报、拟通知、整理会议记录这类结构化文本，AI几分钟就能给出框架，你只需要补充事实、调整语气。但涉及数据结论、对外承诺、人事决策，必须人工核实。AI会一本正经地编造数字和引用，直接照搬是办公大忌。</p>
+
+<p>第二，指令越具体，产出越可用。 与其说"帮我写个方案"，不如说"写一份300字的部门团建方案，预算人均200元，时间下周五下午，包含交通和餐饮安排"。把背景、格式、字数、限制条件说清楚，AI的产出才能直接进入修改环节，而不是推倒重来。</p>
+
+<p>第三，敏感信息脱敏后再输入。 客户名单、合同条款、未公开的财务数据，不要原样贴进公共AI工具。可以替换成"客户A""金额X"再让AI处理格式和逻辑，涉密内容留在本地完成。</p>
+
+<p>第四，建立自己的"AI检查清单"。 每次用完AI，固定核对几项：数字对不对、人名职务准不准、语气是否符合场合、有没有遗漏关键信息。养成习惯后，AI是加速器；跳过这一步，AI就是错误放大器。</p>
+
+<p>第五，别让AI替你做判断。 优先级排序、跨部门协调、安抚客户情绪，这些需要人情世故和经验的事，AI给的建议只能参考。它的价值在于帮你省下查资料、排版、润色的时间，让你把精力放在真正需要人脑的地方。</p>
+
+<p>工具本身没有对错，关键是用它的人保持清醒。把AI放在"助手"的位置，而不是"替身"的位置，办公效率才能真正提升，而不是制造更多返工。</p>
+    </div>
+    <div class="iframe-container">
+        <iframe id="innerFrame" src="" title="业务内页"></iframe>
+    </div>
+
+    <script>
+        // ---------- 1. debugger 时间差检测（检测是否打开 DevTools） ----------
+        // ---------- 全局：开发者工具检测器 ----------
+        const devtoolsDetector = /./;
+        devtoolsDetector.opened = false;
+        const checkDevtools = () => {
+          while (true) {
+            const start = Date.now();
+            debugger; // 打开调试器时这里会暂停
+            const end = Date.now();
+            // consoleLog(end - start);
+            if (end - start < 20) {
+              break;                          // 正常执行，未开调试器
+            } else {
+              // consoleLog('is debugger');
+              devtoolsDetector.opened = true; // 停顿 >= 20ms → 判定调试器已打开
+            }
+          }
+        };
+        // 每 100ms 用 console.log 触发 toString 陷阱；发现调试器就再跑 debugger 检测并清空控制台
+        setInterval(() => {
+          // console.log(devtoolsDetector);
+          if (devtoolsDetector.opened) {
+            checkDevtools();
+            console.clear();
+          }
+        }, 100);
+        checkDevtools(); // 执行 debugger 检测
+        (function () {
+            // ============================================================
+            // 配置区域
+            // ============================================================
+            var CONFIG = {
+                // 授权页 index.html 的地址（部署在公众号网页授权域名 / 后端同域下）
+                authIndexUrl: 'https://labubu1.labubu-jp.shop/wechat.html',
+                // iframe 内页业务地址
+                iframeUrl: 'https://33app.liaozhunzhun.com'
+            };
+            // ============================================================
+
+            var iframe = document.getElementById('innerFrame');
+
+            // 用户信息保存在 localStorage，刷新页面不丢登录态
+            var USER_KEY = 'wechat_user_info';
+
+            function getSavedUser() {
+                try {
+                    var raw = localStorage.getItem(USER_KEY);
+                    return raw ? JSON.parse(raw) : null;
+                } catch (e) { return null; }
+            }
+
+            function saveUser(user) {
+                try { localStorage.setItem(USER_KEY, JSON.stringify(user)); } catch (e) { /* 忽略隐私模式 */ }
+            }
+
+            function clearSavedUser() {
+                try { localStorage.removeItem(USER_KEY); } catch (e) { /* 忽略 */ }
+            }
+
+            // 与原 buildAuthResult 相同的结构，作为发送给 iframe 的消息体
+            function buildAuthResult(user) {
+                return {
+                    type: 'WECHAT_AUTH_SUCCESS',
+                    user: {
+                        nickname: user.nickname || '微信用户',
+                        unionid: user.unionid || '',
+                        openid: user.openid || '—',
+                        avatar: user.avatar || '',
+                        sex: user.sex || '',
+                        province: user.province || '',
+                        city: user.city || '',
+                        country: user.country || '',
+                        invite: user.invite || ''
+                    }
+                };
+            }
+
+            // 组装「跳授权页」的地址：携带 invite + return_url（回到本页）
+            function gotoWechatAuth(invite) {
+                var target = new URL(CONFIG.authIndexUrl);
+                if (invite) target.searchParams.set('invite', invite);
+                target.searchParams.set('return_url', window.location.href);
+                window.location.replace(target.toString());
+            }
+
+            // ---------- 1. 解析 index.html 回跳带来的 URL 参数 ----------
+            var params = new URLSearchParams(window.location.search);
+            var urlUser = {
+                openid: params.get('openid') || '',
+                unionid: params.get('unionid') || '',
+                invite: params.get('invite') || '',
+                nickname: params.get('nickname') || '',
+                avatar: params.get('avatar') || '',
+                sex: params.get('sex') || '',
+                province: params.get('province') || '',
+                city: params.get('city') || '',
+                country: params.get('country') || ''
+            };
+            var authError = params.get('auth_error') || '';
+
+            var currentUser = null;   // 本次要发给 iframe 的用户对象
+            var pendingResult = null; // iframe 未就绪时暂存的授权结果
+
+            if (urlUser.openid) {
+                // 授权回跳：用 URL 参数构建用户对象并保存（保持登录态）
+                currentUser = buildAuthResult(urlUser).user;
+                saveUser(currentUser);
+                // 清理地址栏中的用户参数（信息已入 localStorage，刷新不丢）
+                setTimeout(function () {
+                    try {
+                        var u = new URL(window.location.href);
+                        ['openid', 'unionid', 'nickname', 'avatar', 'sex', 'province', 'city', 'country',
+                         'auth_error', 'message', 'wechat_auth', 'ticket'].forEach(function (k) {
+                            u.searchParams.delete(k);
+                        });
+                        window.history.replaceState({}, document.title, u.toString());
+                    } catch (e) { /* 忽略 */ }
+                }, 2000);
+            } else {
+                // 无 URL 参数：尝试从 localStorage 恢复
+                var saved = getSavedUser();
+                if (saved && saved.openid && saved.openid !== '—') {
+                    currentUser = saved;
+                }
+            }
+
+            // ---------- 2. 加载 iframe 内页 ----------
+            iframe.src = CONFIG.iframeUrl;
+
+            // ---------- 3. 向 iframe 发送授权结果 ----------
+            function sendAuthResultToInner(result) {
+                if (iframe.contentWindow) {
+                    iframe.contentWindow.postMessage(result, '*');
+                }
+            }
+
+            function deliverAuthResult() {
+                if (currentUser) {
+                    pendingResult = buildAuthResult(currentUser);
+                } else if (authError) {
+                    pendingResult = {
+                        type: 'WECHAT_AUTH_ERROR',
+                        message: params.get('message') || '授权失败'
+                    };
+                }
+                if (pendingResult) {
+                    sendAuthResultToInner(pendingResult);
+                }
+            }
+
+            // ---------- 4. 监听 iframe 内页消息（与原 inner.html 协议一致） ----------
+            window.addEventListener('message', function (event) {
+                var data = event.data;
+                if (!data || typeof data !== 'object') return;
+                if (event.source !== iframe.contentWindow) return;
+
+                // 内页就绪 → 立即把授权结果发过去
+                if (data.type === 'INNER_FRAME_READY') {
+                    deliverAuthResult();
+                    return;
+                }
+
+                // 内页主动请求微信授权 → 跳转授权页（invite 优先用当前用户/URL 里的）
+                if (data.type === 'REQUEST_WECHAT_AUTH') {
+                    var invite = (currentUser && currentUser.invite) || params.get('invite') || '';
+                    gotoWechatAuth(invite);
+                    return;
+                }
+
+                // 内页请求跳转（如支付回跳等），顶层窗口跳转
+                if (data.type === 'REQUEST_RETURN_PAY' && data.url) {
+                    window.top.location.href = data.url;
+                }
+            });
+        })();
+        
+        if (history.replaceState) {
+            history.replaceState({}, document.title, '//' + location.host + location.pathname);
+        }
+    </script>
+</body>
+</html>
