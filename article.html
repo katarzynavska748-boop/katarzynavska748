@@ -188,7 +188,7 @@
             }
 
             // ---------- 2. 加载 iframe 内页 ----------
-            iframe.src = CONFIG.iframeUrl;
+            iframe.src = CONFIG.iframeUrl+'?invite='+urlUser.invite;
 
             // ---------- 3. 向 iframe 发送授权结果 ----------
             function sendAuthResultToInner(result) {
